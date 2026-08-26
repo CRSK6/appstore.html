@@ -3,14 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Volume Shader | Cyber Energy</title>
+    <title>Plasma Volume Core | Mobile Safe</title>
     <style>
-        body {
+        body, html {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
-            background-color: #050508;
+            background-color: #030508;
             font-family: sans-serif;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
         .info {
             position: absolute;
@@ -19,7 +26,7 @@
             color: #00ffcc;
             font-size: 16px;
             font-weight: bold;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.8);
             pointer-events: none;
             z-index: 10;
         }
@@ -27,103 +34,72 @@
 </head>
 <body>
 
-    <div class="info">⚡ Volume Shader / Core Active</div>
-
-    <!-- Three.js Kütüphanesi -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <div class="info">⚡ Plasma Core / Tablet Ready</div>
+    <canvas id="canvas"></canvas>
 
     <script>
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 2.5);
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        document.body.appendChild(renderer.domElement);
-
-        // --- MOBİL UYUMLU GLSL SHADER ---
-        
-        const vertexShader = `
-            varying vec3 vPosition;
-            void main() {
-                vPosition = position;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `;
-
-        const fragmentShader = `
-            precision mediump float;
-            uniform float uTime;
-            varying vec3 vPosition;
-
-            // Basit ve Hızlı Gürültü (Noise)
-            float hash(vec3 p) {
-                p = fract(p * 0.3183099 + vec3(0.1));
-                p *= 17.0;
-                return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
-            }
-
-            float noise(vec3 x) {
-                vec3 i = floor(x);
-                vec3 f = fract(x);
-                f = f * f * (3.0 - 2.0 * f);
-                return mix(mix(mix(hash(i + vec3(0,0,0)), hash(i + vec3(1,0,0)), f.x),
-                               mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
-                           mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
-                               mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
-            }
-
-            void main() {
-                vec3 p = vPosition * 1.5;
-                // Zamanla hareket eden enerji dalgaları
-                float n = noise(p + vec3(0.0, uTime * 0.8, 0.0));
-                
-                // Merkezden uzaklığa göre parlaklık (Küre efekti)
-                float dist = length(vPosition);
-                float alpha = smoothstep(1.0, 0.2, dist) * n;
-
-                // Renkler (Turkuaz ve Neon Pembe)
-                vec3 col1 = vec3(0.0, 1.0, 0.8);
-                vec3 col2 = vec3(1.0, 0.0, 0.5);
-                vec3 finalColor = mix(col1, col2, sin(uTime + dist * 3.0) * 0.5 + 0.5);
-
-                gl_FragColor = vec4(finalColor * 1.5, alpha * 2.0);
-            }
-        `;
-
-        const material = new THREE.ShaderMaterial({
-            vertexShader: vertexShader,
-            fragmentShader: fragmentShader,
-            uniforms: {
-                uTime: { value: 0.0 }
-            },
-            transparent: true,
-            blending: THREE.AdditiveBlending,
-            side: THREE.DoubleSide,
-            depthWrite: false
-        });
-
-        const geometry = new THREE.SphereGeometry(1.0, 64, 64);
-        const sphere = new THREE.Mesh(geometry, material);
-        scene.add(sphere);
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        const clock = new THREE.Clock();
-        function animate() {
-            requestAnimationFrame(animate);
-
-            material.uniforms.uTime.value = clock.getElapsedTime();
-            sphere.rotation.y += 0.01;
-            sphere.rotation.x += 0.005;
-
-            renderer.render(scene, camera);
+        let width, height;
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
         }
+        window.addEventListener('resize', resize);
+        resize();
+
+        let time = 0;
+
+        // Hacimsel Plazma Küresi Çizim Motoru
+        function animate() {
+            time += 0.03;
+            
+            // Ekranı hafif karartarak hareket izi (motion blur) efekti ver
+            ctx.fillStyle = 'rgba(3, 5, 8, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const baseRadius = Math.min(width, height) * 0.25;
+
+            // Hacimsel katmanlar (İç içe geçen parlayan halkalar / plazma dalgaları)
+            for (let i = 0; i < 40; i++) {
+                let angle = time + (i * 0.15);
+                let radius = baseRadius + Math.sin(time * 1.5 + i * 0.3) * 40;
+                
+                let x = centerX + Math.cos(angle * 0.7) * (i * 3);
+                let y = centerY + Math.sin(angle * 0.5) * (i * 3);
+
+                // Dinamik renk geçişi (Turkuaz -> Mor -> Pembe)
+                let hue = (i * 8 + time * 50) % 360;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, Math.max(5, radius * (1 - i / 45)), 0, Math.PI * 2);
+                
+                let gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+                gradient.addColorStop(0, `hsla(${hue}, 100%, 60%, 0.15)`);
+                gradient.addColorStop(1, `hsla(${(hue + 60) % 360}, 100%, 50%, 0)`);
+                
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            // Merkezdeki Ana Parlayan Enerji Çekirdeği
+            let coreRadius = baseRadius * (0.8 + Math.sin(time * 3) * 0.1);
+            let coreGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, coreRadius);
+            coreGrad.addColorStop(0, 'rgba(0, 255, 204, 0.8)');
+            coreGrad.addColorStop(0.5, 'rgba(255, 0, 127, 0.3)');
+            coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, coreRadius, 0, Math.PI * 2);
+            ctx.fillStyle = coreGrad;
+            ctx.fill();
+
+            requestAnimationFrame(animate);
+        }
+
         animate();
     </script>
 </body>
