@@ -3,196 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber Zone | Bomba Gibi Site</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <title>Volume Shader | Cyber Energy</title>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            overflow: hidden;
+            background-color: #050508;
             font-family: 'Poppins', sans-serif;
         }
-
-        body {
-            background-color: #0b0f19;
-            color: #ffffff;
-            overflow-x: hidden;
-        }
-
-        /* Header / Navbar */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 8%;
-            background: rgba(11, 15, 25, 0.9);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(0, 255, 204, 0.2);
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: 900;
+        .info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
             color: #00ffcc;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin-left: 25px;
-            font-weight: 500;
-            transition: 0.3s;
-        }
-
-        nav a:hover {
-            color: #00ffcc;
-            text-shadow: 0 0 8px #00ffcc;
-        }
-
-        /* Hero Bölümü */
-        .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 0 20px;
-            background: radial-gradient(circle at center, #1b263b 0%, #0b0f19 70%);
-        }
-
-        .hero h1 {
-            font-size: 50px;
-            font-weight: 900;
-            margin-bottom: 15px;
-            background: linear-gradient(45deg, #00ffcc, #ff007f);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero p {
             font-size: 18px;
-            color: #a0aec0;
-            max-width: 600px;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            background: linear-gradient(45deg, #00ffcc, #0077ff);
-            color: #0b0f19;
-            padding: 12px 30px;
-            font-size: 16px;
-            font-weight: 700;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
-        }
-
-        .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.8);
-        }
-
-        /* Kartlar Bölümü */
-        .features {
-            padding: 100px 8%;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 15px;
-            transition: 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-            border-color: #00ffcc;
-            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.15);
-        }
-
-        .card h3 {
-            font-size: 22px;
-            margin-bottom: 15px;
-            color: #00ffcc;
-        }
-
-        .card p {
-            color: #a0aec0;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 20px;
-            background: #07090f;
-            color: #718096;
-            font-size: 14px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header>
-        <div class="logo">CYBER.ZONE</div>
-        <nav>
-            <a href="#">Ana Sayfa</a>
-            <a href="#">Özellikler</a>
-            <a href="#">İletişim</a>
-        </nav>
-    </header>
+    <div class="info">⚡ Volume Shader / Raymarching Core</div>
 
-    <!-- Hero Alanı -->
-    <section class="hero">
-        <h1>Geleceği Kodla, Sınırları Zorla</h1>
-        <p>Bu site modern web teknolojileriyle tasarlandı. Hızlı, şık ve tamamen göz alıcı bir arayüze sahip.</p>
-        <button class="btn" onclick="tiklandigindaMesajVer()">Tıkla ve Coş! 🚀</button>
-    </section>
+    <!-- Three.js Kütüphanesi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-    <!-- Özellik Kartları -->
-    <section class="features">
-        <div class="card">
-            <h3>⚡ Süper Hızlı</h3>
-            <p>Optimize edilmiş yapısı sayesinde sayfalar yağ gibi akar, hiçbir takılma yaşanmaz.</p>
-        </div>
-        <div class="card">
-            <h3>🎨 Neon Tasarım</h3>
-            <p>Göz yormayan koyu tema renkleri ve neon parıltılarla estetiğin zirvesini yaşa.</p>
-        </div>
-        <div class="card">
-            <h3>🛡️ Güçlü Altyapı</h3>
-            <p>En güncel HTML5 ve CSS3 standartlarıyla kusursuz uyum ve performans sağlar.</p>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <p>© 2026 Cyber Zone. Tüm hakları saklıdır.</p>
-    </footer>
-
-    <!-- JavaScript Etkileşimi -->
     <script>
-        function tiklandigindaMesajVer() {
-            alert("Harika! Bomba gibi bir başlangıç yaptın! 🔥 Şimdi bu kodları dilediğin gibi değiştirebilirsin.");
-        }
-    </script>
+        // Sahne, Kamera ve Renderer Kurulumu
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0, 3.5);
 
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        // --- GLSL SHADER KODLARI ---
+        
+        const vertexShader = `
+            varying vec3 vWorldPosition;
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+                vWorldPosition = worldPosition.xyz;
+                gl_Position = projectionMatrix * viewMatrix * worldPosition;
+            }
+        `;
+
+        const fragmentShader = `
+            uniform float uTime;
+            uniform vec2 uResolution;
+            varying vec3 vWorldPosition;
+            varying vec2 vUv;
+
+            // Basit 3D Gürültü (Noise) Fonksiyonu
+            float hash(vec3 p) {
+                p = fract(p * 0.3183099+.1);
+                p *= 17.0;
+                return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+            }
+
+            float noise(vec3 x) {
+                vec3 i = floor(x);
+                vec3 f = fract(x);
+                f = f * f * (3.0 - 2.0 * f);
+                return mix(mix(mix(hash(i + vec3(0,0,0)), hash(i + vec3(1,0,0)), f.x),
+                               mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+                           mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
+                               mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
+            }
+
+            // FBM (Hacimsel Bulut Katmanları)
+            float fbm(vec3 p) {
+                float sum = 0.0;
+                float amp = 0.5;
+                for (int i = 0; i < 4; i++) {
+                    sum += amp * noise(p);
+                    p *= 2.0;
+                    amp *= 0.5;
+                }
+                return sum;
+            }
+
+            void main() {
+                // Raymarching Koordinatları ve Işın Efekti
+                vec3 rayDir = normalize(vWorldPosition - cameraPosition);
+                vec3 pos = vWorldPosition;
+                
+                float density = 0.0;
+                // Hacimsel tarama döngüsü (Raymarching adımları)
+                for (int i = 0; i < 32; i++) {
+                    vec3 p = pos + rayDir * float(i) * 0.03;
+                    // Zamanla hareket eden gürültü dalgaları
+                    float n = fbm(p * 1.5 + vec3(0.0, uTime * 0.5, 0.0));
+                    // Küresel maske (ortada toplansın)
+                    float sphereDist = length(p) - 1.0;
+                    if (sphereDist < 0.0) {
+                        density += max(0.0, (0.5 - sphereDist) * n * 0.15);
+                    }
+                }
+
+                // Renk paleti (Cyberpunk Turkuaz / Mor geçişi)
+                vec3 col1 = vec3(0.0, 1.0, 0.8); // Turkuaz
+                vec3 col2 = vec3(0.8, 0.0, 0.5); // Neon Mor
+                vec3 finalColor = mix(col1, col2, density * 2.0 + sin(uTime) * 0.25);
+
+                // Çıkış rengi ve saydamlık (alpha)
+                gl_FragColor = vec4(finalColor, density * 3.0);
+            }
+        `;
+
+        // Shader Materyali
+        const material = new THREE.ShaderMaterial({
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader,
+            uniforms: {
+                uTime: { value: 0.0 },
+                uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+            },
+            transparent: true,
+            blending: THREE.AdditiveBlending, // Parlak ışık efekti için
+            side: THREE.BackSide
+        });
+
+        // Geometri (Küre)
+        const geometry = new THREE.SphereGeometry(1.2, 32, 32);
+        const volumeMesh = new THREE.Mesh(geometry, material);
+        scene.add(volumeMesh);
+
+        // Pencere Boyutu Ayarı
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Animasyon Döngüsü
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Zamanı güncelle
+            material.uniforms.uTime.value = clock.getElapsedTime();
+
+            // Küreyi yavaşça döndür
+            volumeMesh.rotation.y += 0.005;
+            volumeMesh.rotation.x += 0.002;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
 </body>
 </html>
