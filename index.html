@@ -10,60 +10,56 @@
             padding: 0;
             overflow: hidden;
             background-color: #050508;
-            font-family: 'Poppins', sans-serif;
+            font-family: sans-serif;
         }
         .info {
             position: absolute;
             top: 20px;
             left: 20px;
             color: #00ffcc;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
             pointer-events: none;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
 
-    <div class="info">⚡ Volume Shader / Raymarching Core</div>
+    <div class="info">⚡ Volume Shader / Core Active</div>
 
     <!-- Three.js Kütüphanesi -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        // Sahne, Kamera ve Renderer Kurulumu
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 3.5);
+        camera.position.set(0, 0, 2.5);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         document.body.appendChild(renderer.domElement);
 
-        // --- GLSL SHADER KODLARI ---
+        // --- MOBİL UYUMLU GLSL SHADER ---
         
         const vertexShader = `
-            varying vec3 vWorldPosition;
-            varying vec2 vUv;
+            varying vec3 vPosition;
             void main() {
-                vUv = uv;
-                vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-                vWorldPosition = worldPosition.xyz;
-                gl_Position = projectionMatrix * viewMatrix * worldPosition;
+                vPosition = position;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
         `;
 
         const fragmentShader = `
+            precision mediump float;
             uniform float uTime;
-            uniform vec2 uResolution;
-            varying vec3 vWorldPosition;
-            varying vec2 vUv;
+            varying vec3 vPosition;
 
-            // Basit 3D Gürültü (Noise) Fonksiyonu
+            // Basit ve Hızlı Gürültü (Noise)
             float hash(vec3 p) {
-                p = fract(p * 0.3183099+.1);
+                p = fract(p * 0.3183099 + vec3(0.1));
                 p *= 17.0;
                 return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
             }
@@ -78,82 +74,53 @@
                                mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
             }
 
-            // FBM (Hacimsel Bulut Katmanları)
-            float fbm(vec3 p) {
-                float sum = 0.0;
-                float amp = 0.5;
-                for (int i = 0; i < 4; i++) {
-                    sum += amp * noise(p);
-                    p *= 2.0;
-                    amp *= 0.5;
-                }
-                return sum;
-            }
-
             void main() {
-                // Raymarching Koordinatları ve Işın Efekti
-                vec3 rayDir = normalize(vWorldPosition - cameraPosition);
-                vec3 pos = vWorldPosition;
+                vec3 p = vPosition * 1.5;
+                // Zamanla hareket eden enerji dalgaları
+                float n = noise(p + vec3(0.0, uTime * 0.8, 0.0));
                 
-                float density = 0.0;
-                // Hacimsel tarama döngüsü (Raymarching adımları)
-                for (int i = 0; i < 32; i++) {
-                    vec3 p = pos + rayDir * float(i) * 0.03;
-                    // Zamanla hareket eden gürültü dalgaları
-                    float n = fbm(p * 1.5 + vec3(0.0, uTime * 0.5, 0.0));
-                    // Küresel maske (ortada toplansın)
-                    float sphereDist = length(p) - 1.0;
-                    if (sphereDist < 0.0) {
-                        density += max(0.0, (0.5 - sphereDist) * n * 0.15);
-                    }
-                }
+                // Merkezden uzaklığa göre parlaklık (Küre efekti)
+                float dist = length(vPosition);
+                float alpha = smoothstep(1.0, 0.2, dist) * n;
 
-                // Renk paleti (Cyberpunk Turkuaz / Mor geçişi)
-                vec3 col1 = vec3(0.0, 1.0, 0.8); // Turkuaz
-                vec3 col2 = vec3(0.8, 0.0, 0.5); // Neon Mor
-                vec3 finalColor = mix(col1, col2, density * 2.0 + sin(uTime) * 0.25);
+                // Renkler (Turkuaz ve Neon Pembe)
+                vec3 col1 = vec3(0.0, 1.0, 0.8);
+                vec3 col2 = vec3(1.0, 0.0, 0.5);
+                vec3 finalColor = mix(col1, col2, sin(uTime + dist * 3.0) * 0.5 + 0.5);
 
-                // Çıkış rengi ve saydamlık (alpha)
-                gl_FragColor = vec4(finalColor, density * 3.0);
+                gl_FragColor = vec4(finalColor * 1.5, alpha * 2.0);
             }
         `;
 
-        // Shader Materyali
         const material = new THREE.ShaderMaterial({
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
             uniforms: {
-                uTime: { value: 0.0 },
-                uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+                uTime: { value: 0.0 }
             },
             transparent: true,
-            blending: THREE.AdditiveBlending, // Parlak ışık efekti için
-            side: THREE.BackSide
+            blending: THREE.AdditiveBlending,
+            side: THREE.DoubleSide,
+            depthWrite: false
         });
 
-        // Geometri (Küre)
-        const geometry = new THREE.SphereGeometry(1.2, 32, 32);
-        const volumeMesh = new THREE.Mesh(geometry, material);
-        scene.add(volumeMesh);
+        const geometry = new THREE.SphereGeometry(1.0, 64, 64);
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
 
-        // Pencere Boyutu Ayarı
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Animasyon Döngüsü
         const clock = new THREE.Clock();
         function animate() {
             requestAnimationFrame(animate);
 
-            // Zamanı güncelle
             material.uniforms.uTime.value = clock.getElapsedTime();
-
-            // Küreyi yavaşça döndür
-            volumeMesh.rotation.y += 0.005;
-            volumeMesh.rotation.x += 0.002;
+            sphere.rotation.y += 0.01;
+            sphere.rotation.x += 0.005;
 
             renderer.render(scene, camera);
         }
